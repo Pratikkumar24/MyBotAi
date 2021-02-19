@@ -29,15 +29,19 @@ def takecommand():
         takes microphone user as input and returns in string
 
     '''
+    # print(sr.__version__)
     try:
         r = sr.Recognizer()
         with sr.Microphone() as source:
-            # r.adjust_for_ambient_noise(source, duration=0.2)
+            r.adjust_for_ambient_noise(source, duration=0.5)
             print("Listening...")
             # r.pause_thresold = 1
             audio = r.listen(source)
+
     except KeyboardInterrupt:
         speak("You ended the listening process, Sir")
+
+    print("listened!")
 
     try:
         print("Recongnizing...")
@@ -46,7 +50,7 @@ def takecommand():
 
     except Exception as e:
         print("Say that again, Sir!...")
-        speak("Say that again, Sir!...")
+        speak("Say that again, Sir!")
         return "None"
     except KeyboardInterrupt:
         speak("You ended the recognizing part, Sir")
