@@ -5,7 +5,6 @@ from Modules.module import *
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
-# print(voices)
 engine.setProperty('voice', voices[1].id)
 
 def speak(audio):
@@ -31,20 +30,16 @@ def takecommand():
     try:
         r = sr.Recognizer()
         with sr.Microphone() as source:
-            # r.adjust_for_ambient_noise(source, duration=0.5)
+            r.adjust_for_ambient_noise(source, duration=0.5)
             print("Listening...")
-            # r.pause_thresold = 1
             audio = r.listen(source)
 
     except KeyboardInterrupt:
         speak("You ended the listening process, Sir")
 
-    print("listened!")
-
     try:
         print("Recongnizing...")
         query = r.recognize_google(audio, language='en-in')
-        print(f"user said:{query}\n")
 
     except Exception as e:
         print("Say that again, Sir!...")
