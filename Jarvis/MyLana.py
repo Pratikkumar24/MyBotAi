@@ -1,7 +1,6 @@
-import pyttsx3
-import datetime
-# import PyAudio
-import speech_recognition as sr
+
+
+from Modules.module import *
 
 
 engine = pyttsx3.init('sapi5')
@@ -29,11 +28,10 @@ def takecommand():
         takes microphone user as input and returns in string
 
     '''
-    # print(sr.__version__)
     try:
         r = sr.Recognizer()
         with sr.Microphone() as source:
-            r.adjust_for_ambient_noise(source, duration=0.5)
+            # r.adjust_for_ambient_noise(source, duration=0.5)
             print("Listening...")
             # r.pause_thresold = 1
             audio = r.listen(source)
