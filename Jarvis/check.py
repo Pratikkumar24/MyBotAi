@@ -1,10 +1,12 @@
-from datetime import datetime
+from PyDictionary import PyDictionary
 
-# now = datetime.now()
-hour = datetime.now().hour
-minute = datetime.now().minute
-second = datetime.now().second
+dictionary=PyDictionary("night","ambush","nonchalant","perceptive")
 
-print("current hour: "+ str(hour))
-print("current minute: "+ str(minute))
-print("current second: "+ str(second))
+print("Printing the meaning:")
+print(dictionary.printMeanings()) 
+print("\nPrinting the meaning according to dictionary")
+print(dictionary.getMeanings()) 
+print("\nPrinting the Synonyms:")
+print (dictionary.getSynonyms())
+print("\nTranslating them in hindi:")
+print (dictionary.translateTo("hi"))
