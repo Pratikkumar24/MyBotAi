@@ -7,10 +7,10 @@ import speedtest
 import webbrowser
 import socket, requests
 from youtubesearchpython import VideosSearch
-from win10toast import ToastNotifier
-import time
+import time, laughs
 from PyDictionary import PyDictionary
 from gtts import gTTS
 from playsound import playsound
+import pywhatkit as kit
 
 

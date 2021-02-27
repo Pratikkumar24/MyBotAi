@@ -9,6 +9,7 @@ class myBot():
         self.engine.setProperty('voice', self.voices[1].id)
         self.checkInternet()
         self.dictionary=PyDictionary()
+        self.week = ["monday","tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
         
     def youtubeLink(self, query, limit=1):
         videosSearch = VideosSearch(query, limit = limit)
@@ -38,8 +39,12 @@ class myBot():
             self.speak("Good Afternoon, Sir!")
         else:
             self.speak("Good Evening, Sir!")
+        
+        number = datetime.today().weekday()
+        today =self.week[number]
 
-        self.speak("I am your assistant, Maggi. How may I help you.")
+        self.speak("I am your assistant, "+str(today)+". How may I help you.")
+        return today
 
     def takecommand(self):
 
@@ -72,7 +77,7 @@ class myBot():
         if query == "none":
             return
 
-        elif re.search('quit', query) or re.search('exit', query):
+        elif 'quit' in query or 'exit' in query or 'stop' in query:
             print("\nQuiting...\n")
             self.speak("Bye Sir, hope you are satisfied with my care")
             myobj = gTTS(text="and see you again, Sir", lang="hi", slow= False)
@@ -81,25 +86,70 @@ class myBot():
             os.remove("tmp.mp3")
             sys.exit()
         
-        elif re.search('check internet speed', query) or re.search('check speed', query) or re.search('check the internet speed', query) or re.search('check the speed', query):
+        elif 'speed' in query:
+            self.speak("Checking the download speed, upload speed and ping of your internet..")
             print("\nLoading......\n")
             
             st = speedtest.Speedtest() 
             self.checkInternet()
             dspeed = st.download() * 10**(-6)
             upspeed = st.upload() * 10**(-6)
-            print("\nDownload Speed: {:.2f}".format(round(dspeed, 2)))
-            print("Upload Speed: {:.2f}".format(round(upspeed, 2)))
+            print("\nDownload Speed: {:.2f}mbps".format(round(dspeed, 2)))
+            self.speak("Download Speed is {:.2f} m b p s".format(round(dspeed, 2)))
+            print("Upload Speed: {:.2f}mbps".format(round(upspeed, 2)))
+            self.speak("Upload Speed is {:.2f} m b p s".format(round(upspeed, 2)))
             servernames =[]   
             st.get_servers(servernames)   
-            print(str(st.results.ping) +" ping\n")  
+            print(str(st.results.ping) +"ms ping\n")  
+            self.speak("And your ping is "+ str(st.results.ping))
 
-        elif re.search("what's the time", query) or re.search("what is the time", query):
+        elif 'bored' in query or "boring" in query:
+            text = "Sir, if that is the case, would you like to listen to a joke"
+            m = gTTS(text, lang="hi")
+            m.save("tmp.mp3")
+            playsound("tmp.mp3")
+            os.remove("tmp.mp3")
+
+            ans = self.takecommand()
+            if "yes" in ans:  
+                text = "Okay! let me search a joke for you."
+                m = gTTS(text, lang="hi")
+                m.save("tmp.mp3")
+                playsound("tmp.mp3")
+                os.remove("tmp.mp3")
+                joke = laughs.get_joke()
+                m = gTTS(joke, lang="hi")
+                m.save("tmp.mp3")
+                playsound("tmp.mp3")
+                os.remove("tmp.mp3")
+
+            else:
+                m = gTTS("Then what I can do for you", lang="hi")
+                m.save("tmp.mp3")
+                playsound("tmp.mp3")
+                os.remove("tmp.mp3")
+
+        elif "joke" in query:
+            text = "Okay! let me search a joke for you."
+            self.speak(text)
+            
+            joke = laughs.get_joke()
+            print(joke)
+            self.speak(joke)
+            
+        elif "time" in query:
 
             strtime = datetime.now().strftime("%H:%M:%S")
             self.speak("Sir, current time is "+ strtime)
 
-        elif re.search("who is", query) or re.search("something about", query):
+        elif "open" in query:
+            self.speak("what you want me to search for you")
+            ans = self.takecommand().lower()
+            chromepath = "D:\Chrome\chrome.exe"
+            webbrowser.get(chromepath).open_new_tab(f"{ans}")
+       
+        elif "who is" in query or "something about" in query:
+            
             if re.search("who is", query):
                 x = re.search("(.*who is )(.*)", query)
                 self.speak("So you wanna know about "+ str(x.group(2)))
@@ -129,9 +179,10 @@ class myBot():
                     self.speak("Then what you wanted to know, sir.")
                     return
 
-        elif re.search("youtube", query):
+        elif "youtube" in query:
             limit = 1
-            if re.search("open youtube", query):
+            if"open youtube" in query:
+                self.speak("opening youtube")
                 webbrowser.open_new_tab("http://www.youtube.com")
             else:
                 try:
@@ -149,10 +200,12 @@ class myBot():
                 title = title.replace(' in ',' ').replace(' on ',' ').replace('from','\b').replace('show' ,'\b').replace('youtube','\b')
                 urlList = self.youtubeLink(title,limit)
                 print("\n Searching title: " + title + " With "+ str(limit)+" url")
+                self.speak("opening "+title+" in youtube")
                 for url in urlList:
                     webbrowser.open_new_tab(str(url[1]))
 
-        elif (re.search("meaning", query) or re.search("means",query) or re.search("mean",query)) and re.search("what", query):
+        elif "mean" in query and "what" in query:
+            self.speak("Searching the meaning from python dictonary")
             try:
                 useless = re.findall("(?:)(.*what)", query)[0]
                 query = query.replace(useless,"")
@@ -173,21 +226,15 @@ class myBot():
             if re.search("yes",res) or re.search("yup", res) or re.search("ha", res):
                 result = self.dictionary.meaning(query)
                 print(result["Noun"])
+                self.speak(result["Noun"])
             elif re.search("no",res) or re.search("na", res):
                 self.speak("Sir then please type the spelling of the word you want to search")
                 word = input("Enter the word sir: ")
                 result = self.dictionary.meaning(word)
                 print(result["Noun"])
-            
-        elif re.search("alexa", query) or re.search("hey google", query):
-
-            self.speak("Sir, Please dont speak about alexa or google assistant. Those are useless dumb guys and nothing in front of me")
-            myobj = gTTS(text="Kyuki sab ke sab chor hai saale!", lang="hi", slow=False)
-            myobj.save("tmp.mp3")
-            playsound("tmp.mp3")
-            os.remove("tmp.mp3")
-
-        elif re.search("you can do", query):
+                self.speak(result["Noun"])
+   
+        elif "you can do" in query:
             self.speak("Sir, These are the task I can do for you now..")
             print("1) Internet speed")
 
@@ -198,25 +245,45 @@ class myBot():
             print("3) Can know something about it according to wikipedia")
 
             # self.speak("4) Open Youtube")
-            print("4) Open Youtube or <anything> on youtube")
+            print("4) Open Youtube or <anything> on/in/from youtube <optional='limit no. of url'>")
 
+            print("5) Check the meaning of a word in dictionary")
+
+            print("6) Can tell a joke")
+
+            print("7) are you bored! ")
             # self.speak("5) To Quit yourself")
-            print("5) To Quit yourself")
-
-        elif re.search("good", query):
+            print("8) To Quit yourself")
+            
+        elif "good" in query or "nice" in query or "amazing" in query:
             self.speak("Thank you sir!")
 
-        elif re.search("hey", query):
+        elif "hey" in query:
             self.speak("Yes sir!, I am listening to you!")
 
+        elif "message" in query:
+            if "after" in query:
+                
+            now = datetime.now()
+            kit.sendwhatmsg("+918830271663","Hello ", now.hour, now.minute+2)
+
+            # print("time: "+ str(time.hour())+ " "+ str(time.minute()))
         
 if __name__ == '__main__':
     bot = myBot()
-    # bot.wishme()
+    today = bot.wishme()
     while(1):
+        print("Today's assistant:-> "+ today)
         query = bot.takecommand().lower()
         if "none" not in query:
             print("UserSaid: " + str(query))
-            if "magg" in query or "maggi" in query or "maggie" in query:
+            if re.search("alexa", query) or re.search("hey google", query):
+                text = "Sir, Please dont speak about alexa or google assistant. Those are useless dumb guys and nothing in front of me!"
+                myobj = gTTS(text=text + "Kyuki sab ke sab chor hai saale!", lang="hi", slow=True)
+                myobj.save("tmp.mp3")
+                playsound("tmp.mp3")
+                os.remove("tmp.mp3")
+            elif today in query:
+                query = query.replace(today, "\b")
                 bot.runCommand(query)
 
