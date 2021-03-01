@@ -1,4 +1,4 @@
-#!/bin/bash
+# !/bin/bash
 from Modules.module import *
 
 class myBot():
@@ -50,15 +50,19 @@ class myBot():
 
         try:
             r = sr.Recognizer()
+            r.pause_threshold = 1
+            r.threshold = 1  
+            r.energy_threshold = 4000
             with sr.Microphone() as source:
-                # r.adjust_for_ambient_noise(source, duration=5)
                 print("Listening...")
-                r.threshold = 1  
-                audio = r.listen(source)
+                audio = r.listen(source,timeout= 6, phrase_time_limit= 8)
 
         except KeyboardInterrupt:
             print("You ended the listening process, Sir")
             sys.exit()
+        
+        except Exception as e:
+            self.takecommand()
 
         try:
             print("Recognizing ...")
@@ -74,10 +78,7 @@ class myBot():
         return query 
 
     def runCommand(self,query):
-        if query == "none":
-            return
-
-        elif 'quit' in query or 'exit' in query or 'stop' in query:
+        if 'quit' in query or 'exit' in query or 'stop' in query:
             print("\nQuiting...\n")
             self.speak("Bye Sir, hope you are satisfied with my care")
             myobj = gTTS(text="and see you again, Sir", lang="hi", slow= False)
@@ -85,6 +86,18 @@ class myBot():
             playsound("tmp.mp3")
             os.remove("tmp.mp3")
             sys.exit()
+        
+        elif 'close' in query:
+            if 'window' in query:
+                self.speak("closing the current window")
+                pyautogui.keyDown('alt')
+                pyautogui.press('f4')
+                pyautogui.keyUp('alt')
+            else:
+                self.speak("closing the current tab")
+                pyautogui.keyDown('ctrl')
+                pyautogui.press('w')
+                pyautogui.keyUp('ctrl')
         
         elif 'speed' in query:
             self.speak("Checking the download speed, upload speed and ping of your internet..")
@@ -117,7 +130,7 @@ class myBot():
                 m.save("tmp.mp3")
                 playsound("tmp.mp3")
                 os.remove("tmp.mp3")
-                joke = laughs.get_joke()
+                joke = pyjokes.get_joke('all')
                 m = gTTS(joke, lang="hi")
                 m.save("tmp.mp3")
                 playsound("tmp.mp3")
@@ -142,11 +155,17 @@ class myBot():
             strtime = datetime.now().strftime("%H:%M:%S")
             self.speak("Sir, current time is "+ strtime)
 
-        elif "open" in query:
+        elif "open" in query or 'search' in query:
             self.speak("what you want me to search for you")
-            ans = self.takecommand().lower()
-            chromepath = "D:\Chrome\chrome.exe"
-            webbrowser.get(chromepath).open_new_tab(f"{ans}")
+            while(1):
+                try:
+                    term = self.takecommand().lower()
+                    break
+                except:
+                    self.speak("Sir! Could you please repeat it")
+
+            url = "https://www.google.com.tr/search?q={}".format(term)
+            webbrowser.open_new_tab(url)
        
         elif "who is" in query or "something about" in query:
             
@@ -200,7 +219,11 @@ class myBot():
                 title = title.replace(' in ',' ').replace(' on ',' ').replace('from','\b').replace('show' ,'\b').replace('youtube','\b')
                 urlList = self.youtubeLink(title,limit)
                 print("\n Searching title: " + title + " With "+ str(limit)+" url")
-                self.speak("opening "+title+" in youtube")
+                text = "opening "+title+" in youtube"
+                m = gTTS(text, lang="hi")
+                m.save("tmp.mp3")
+                playsound("tmp.mp3")
+                os.remove("tmp.mp3")
                 for url in urlList:
                     webbrowser.open_new_tab(str(url[1]))
 
@@ -262,13 +285,35 @@ class myBot():
             self.speak("Yes sir!, I am listening to you!")
 
         elif "message" in query:
-            if "after" in query:
-                
             now = datetime.now()
-            kit.sendwhatmsg("+918830271663","Hello ", now.hour, now.minute+2)
+            minutes = now.minute +2
+            hour = now.hour
+            if "on" in query or "at" in query: 
+                numbers = re.findall(r"\d+", query)
+                if " pm" in query:
+                    minutes, hour = numbers[-1], (numbers[-2]+12)%24
+                    if minutes>=numbers[-1] and hour>=numbers[-2]:
+                        # kit.sendwhatmsg("+918830271663","Hello ", hour, minutes)
+                        print("Hour: "+ hour, "Minutes: "+ minutes)
+                    else:
+                        print("Hour: "+ hour, "Minutes: "+ minutes)
+                else:
+                    print(hour, minutes)
+      
+        elif "music" in query:
+            self.speak("Playing Music")
+            dir = "C:\\Users\\Pratik\\Documents\\Rockstar Games\\GTA V\\User Music"
+            songs = os.listdir(dir)
+            rd = random.choice(songs)
+            os.startfile(os.path.join(dir, rd))
+'''
+    making of opening insta: https://www.instagram.com/accounts/edit/?hl=en
+    making of opening facebook: https://www.facebook.com  
 
-            # print("time: "+ str(time.hour())+ " "+ str(time.minute()))
-        
+'''
+
+
+
 if __name__ == '__main__':
     bot = myBot()
     today = bot.wishme()
