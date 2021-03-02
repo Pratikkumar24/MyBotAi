@@ -1,3 +1,5 @@
-import playsound
+import re
 
-playsound.playsound('C:\\Users\\Pratik\\Desktop\\CODES\\MainCodes\\MyProjects\\AIbot\\chime\\gF.wav',True)
+term = 'tuesday search facebook'
+title = re.findall("((?:.* search )(.*))|(.*)", term)[0][1]
+print("-> " + str(title))

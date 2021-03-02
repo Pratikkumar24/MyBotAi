@@ -53,10 +53,11 @@ class myBot():
             r.pause_threshold = 1
             r.threshold = 1  
             r.energy_threshold = 4000
-            playsound('C:\\Users\\Pratik\\Desktop\\CODES\\MainCodes\\MyProjects\\AIbot\\chime\\ping.wav',True)
             with sr.Microphone() as source:
                 print("Listening...")
+                playsound('C:\\Users\\Pratik\\Desktop\\CODES\\MainCodes\\MyProjects\\AIbot\\chime\\ping.wav',True)
                 audio = r.listen(source,timeout= 6, phrase_time_limit= 8)
+
 
         except KeyboardInterrupt:
             print("You ended the listening process, Sir")
@@ -77,6 +78,76 @@ class myBot():
             sys.exit()
             return "None"
         return query 
+
+    def OPEN(self, query):
+        # self.speak("Sir, what do you want me to open or search")
+        if 'search' in query:
+            testquery = query.replace('\b',query)
+            if not len(testquery)>2:
+                while(1):
+                    try:
+                        term = self.takecommand().lower()
+                        title = re.findall("((?:.* search )(.*))|(.*)", term)[0][1]
+                        print("-> " + title)
+                        break
+                    except:
+                        self.speak("Sir! Could you please repeat it")
+
+                self.speak("searching "+ term+" in google")
+                url = "https://www.google.com.tr/search?q={}".format(term)
+                webbrowser.open_new_tab(url)
+            else: 
+                self.speak("searching "+ term+" in google")
+                title = re.findall("((?:.* search )(.*))|(.*)", term)[0][1]
+                url = "https://www.google.com.tr/search?q={}".format(term)
+                webbrowser.open_new_tab(url)
+
+        elif 'open' in query:   
+            testquery = query.replace('\b',query)
+            if not len(testquery)>2:
+                while(1):
+                    try:
+                        term = self.takecommand().lower()
+                        title = re.findall("((?:.* open )(.*))|(.*)", term)[0][1]
+                        print("-> " + title)
+                        break
+                    except:
+                        self.speak("Sir! Could you please repeat it")
+
+                if 'notepad' in title:
+                    self.speak("opening notepad")
+                    os.system("cd C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Accessories")
+                    subprocess.Popen("Notepad.exe")
+                elif 'chrome' in title:
+                    self.speak("opening chrome browser with google")
+                    webbrowser.open_new_tab("http://www.google.com")
+                elif 'facebook' in title:
+                    self.speak("opening facebook")
+                    webbrowser.open_new_tab("https://www.facebook.com")
+                elif 'instagram' in title:
+                    self.speak("opening instagram")
+                    webbrowser.open_new_tab("https://www.instagram.com/accounts/edit/?hl=en")
+                elif 'whatsapp'  in title:
+                    self.speak("opening whatsapp")
+                    webbrowser.open_new_tab("https://web.whatsapp.com")   
+            else: 
+                title = re.findall("((?:.* open )(.*))|(.*)", query)[0][1]
+                if 'notepad' in title:
+                    self.speak("opening notepad")
+                    os.system("cd C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Accessories")
+                    subprocess.Popen("Notepad.exe")
+                elif 'chrome' in title:
+                    self.speak("opening chrome browser with google")
+                    webbrowser.open_new_tab("http://www.google.com")
+                elif 'facebook' in title:
+                    self.speak("opening facebook")
+                    webbrowser.open_new_tab("https://www.facebook.com")
+                elif 'instagram' in title:
+                    self.speak("opening instagram")
+                    webbrowser.open_new_tab("https://www.instagram.com/accounts/edit/?hl=en")
+                elif 'whatsapp'  in title:
+                    self.speak("opening whatsapp")
+                    webbrowser.open_new_tab("https://web.whatsapp.com")
 
     def runCommand(self,query):
         if 'quit' in query or 'exit' in query or 'stop' in query:
@@ -155,19 +226,7 @@ class myBot():
 
             strtime = datetime.now().strftime("%H:%M:%S")
             self.speak("Sir, current time is "+ strtime)
-
-        elif "open" in query or 'search' in query:
-            self.speak("what you want me to search for you")
-            while(1):
-                try:
-                    term = self.takecommand().lower()
-                    break
-                except:
-                    self.speak("Sir! Could you please repeat it")
-
-            url = "https://www.google.com.tr/search?q={}".format(term)
-            webbrowser.open_new_tab(url)
-       
+      
         elif "who is" in query or "something about" in query:
             
             if re.search("who is", query):
@@ -278,7 +337,12 @@ class myBot():
             print("7) are you bored! ")
             # self.speak("5) To Quit yourself")
             print("8) search anything on google by saying open or search")
-            print("9) To Quit yourself")
+
+            print('9) can open any application from your pc')
+
+            print("10) can send a whatsapp message to someone")
+
+            print("11) To Quit yourself")
             
         elif "good" in query or "nice" in query or "amazing" in query:
             self.speak("Thank you sir!")
@@ -308,13 +372,6 @@ class myBot():
             songs = os.listdir(dir)
             rd = random.choice(songs)
             os.startfile(os.path.join(dir, rd))
-'''
-    making of opening insta: https://www.instagram.com/accounts/edit/?hl=en
-    making of opening facebook: https://www.facebook.com  
-
-'''
-
-
 
 if __name__ == '__main__':
     bot = myBot()
@@ -332,5 +389,7 @@ if __name__ == '__main__':
                 os.remove("tmp.mp3")
             elif today in query:
                 query = query.replace(today, "\b")
+                if 'open' in query or 'search' in query:
+                    bot.OPEN(query)
                 bot.runCommand(query)
-
+            
