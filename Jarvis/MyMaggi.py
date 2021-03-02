@@ -53,6 +53,7 @@ class myBot():
             r.pause_threshold = 1
             r.threshold = 1  
             r.energy_threshold = 4000
+            playsound('C:\\Users\\Pratik\\Desktop\\CODES\\MainCodes\\MyProjects\\AIbot\\chime\\ping.wav',True)
             with sr.Microphone() as source:
                 print("Listening...")
                 audio = r.listen(source,timeout= 6, phrase_time_limit= 8)
@@ -130,7 +131,7 @@ class myBot():
                 m.save("tmp.mp3")
                 playsound("tmp.mp3")
                 os.remove("tmp.mp3")
-                joke = pyjokes.get_joke('all')
+                joke = pyjokes.get_joke()
                 m = gTTS(joke, lang="hi")
                 m.save("tmp.mp3")
                 playsound("tmp.mp3")
@@ -276,7 +277,8 @@ class myBot():
 
             print("7) are you bored! ")
             # self.speak("5) To Quit yourself")
-            print("8) To Quit yourself")
+            print("8) search anything on google by saying open or search")
+            print("9) To Quit yourself")
             
         elif "good" in query or "nice" in query or "amazing" in query:
             self.speak("Thank you sir!")
@@ -324,7 +326,7 @@ if __name__ == '__main__':
             print("UserSaid: " + str(query))
             if re.search("alexa", query) or re.search("hey google", query):
                 text = "Sir, Please dont speak about alexa or google assistant. Those are useless dumb guys and nothing in front of me!"
-                myobj = gTTS(text=text + "Kyuki sab ke sab chor hai saale!", lang="hi", slow=True)
+                myobj = gTTS(text=text + "Kyuki sab ke sab chor hai saale!", lang="hi", slow=False)
                 myobj.save("tmp.mp3")
                 playsound("tmp.mp3")
                 os.remove("tmp.mp3")

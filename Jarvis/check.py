@@ -1,5 +1,3 @@
-import instaloader
+import playsound
 
-mod = instaloader.Instaloader()
-
-mod.download_profile("pratik_k_24",profile_pic_only = True)
+playsound.playsound('C:\\Users\\Pratik\\Desktop\\CODES\\MainCodes\\MyProjects\\AIbot\\chime\\gF.wav',True)
