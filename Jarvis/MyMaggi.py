@@ -1,4 +1,4 @@
-# !/bin/bash
+
 from Modules.module import *
 
 class myBot():
