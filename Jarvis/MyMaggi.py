@@ -10,6 +10,7 @@ class myBot():
         self.checkInternet()
         self.dictionary=PyDictionary()
         self.week = ["monday","tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        self.silent = 1
         
     def youtubeLink(self, query, limit=1):
         videosSearch = VideosSearch(query, limit = limit)
@@ -55,7 +56,8 @@ class myBot():
             r.energy_threshold = 4000
             with sr.Microphone() as source:
                 print("Listening...")
-                playsound('C:\\Users\\Pratik\\Desktop\\CODES\\MainCodes\\MyProjects\\AIbot\\chime\\ping.wav',True)
+                if self.silent == 1:
+                    playsound('C:\\Users\\Pratik\\Desktop\\CODES\\MainCodes\\MyProjects\\AIbot\\chime\\ping.wav',True)
                 audio = r.listen(source,timeout= 6, phrase_time_limit= 8)
 
 
@@ -77,30 +79,28 @@ class myBot():
             print("You ended the recognizing part, Sir")
             sys.exit()
             return "None"
-        return query 
+        return query.lower()
 
     def OPEN(self, query):
         # self.speak("Sir, what do you want me to open or search")
         if 'search' in query:
-            testquery = query.replace('\b',query)
-            if not len(testquery)>2:
-                while(1):
-                    try:
-                        term = self.takecommand().lower()
-                        title = re.findall("((?:.* search )(.*))|(.*)", term)[0][1]
-                        print("-> " + title)
+            title=""
+            while(1):
+                try:
+                    title = re.findall("((?:.* search )(.*))|(.*)", query)[0][1]
+                    if not len(title)>1:
+                        self.speak("Sir, tell me what you want to search")
+                        title = self.takecommand()
+                        if 'none' not in title:
+                            break
+                    else:
                         break
-                    except:
-                        self.speak("Sir! Could you please repeat it")
+                except:
+                    self.speak("Sir! Could you please repeat it")
 
-                self.speak("searching "+ term+" in google")
-                url = "https://www.google.com.tr/search?q={}".format(term)
-                webbrowser.open_new_tab(url)
-            else: 
-                self.speak("searching "+ term+" in google")
-                title = re.findall("((?:.* search )(.*))|(.*)", term)[0][1]
-                url = "https://www.google.com.tr/search?q={}".format(term)
-                webbrowser.open_new_tab(url)
+            self.speak("searching "+ title+" in google")
+            url = "https://www.google.com.tr/search?q={}".format(title)
+            webbrowser.open_new_tab(url)
 
         elif 'open' in query:   
             testquery = query.replace('\b',query)
@@ -149,16 +149,44 @@ class myBot():
                     self.speak("opening whatsapp")
                     webbrowser.open_new_tab("https://web.whatsapp.com")
 
+    def changeWindows(self):
+        self.speak("at which number of slide you want to switch,Sir")
+        print("<windowslides are zero indexing>")
+        pyautogui.keyDown('alt')
+        pyautogui.press('tab')
+        time.sleep(5)
+        pyautogui.keyUp('alt')
+        pyautogui.keyDown('alt')
+        pyautogui.press('tab')
+        pyautogui.keyUp('alt')
+        actual_number=[]
+
+        number = self.takecommand()
+        actual_number = re.findall(r"\d", number)
+        if not len(actual_number)>0: 
+            actual_number.append(1)
+        pyautogui.keyDown('alt')
+        numberofslidechange = int(actual_number[-1])
+        for i in range(numberofslidechange):
+            pyautogui.press('tab')
+            time.sleep(1)
+        pyautogui.keyUp('alt')
+    
     def runCommand(self,query):
+
         if 'quit' in query or 'exit' in query or 'stop' in query:
             print("\nQuiting...\n")
             self.speak("Bye Sir, hope you are satisfied with my care")
-            myobj = gTTS(text="and see you again, Sir", lang="hi", slow= False)
+            myobj = gTTS(text="and see you again, ba-bye Sir", lang="hi", slow= False)
             myobj.save("tmp.mp3")
             playsound("tmp.mp3")
             os.remove("tmp.mp3")
             sys.exit()
         
+        elif 'shutdown' in query:
+            self.speak("Shuting Down the system")
+            os.system('shutdown -s')
+
         elif 'close' in query:
             if 'window' in query:
                 self.speak("closing the current window")
@@ -171,6 +199,15 @@ class myBot():
                 pyautogui.press('w')
                 pyautogui.keyUp('ctrl')
         
+        elif 'change' in query:
+            while True:
+                self.changeWindows()
+                self.speak("want to change one more time")
+                ans = self.takecommand()
+                print("->", ans)
+                if 'no' in ans:
+                    break
+      
         elif 'speed' in query:
             self.speak("Checking the download speed, upload speed and ping of your internet..")
             print("\nLoading......\n")
@@ -347,9 +384,6 @@ class myBot():
         elif "good" in query or "nice" in query or "amazing" in query:
             self.speak("Thank you sir!")
 
-        elif "hey" in query:
-            self.speak("Yes sir!, I am listening to you!")
-
         elif "message" in query:
             now = datetime.now()
             minutes = now.minute +2
@@ -373,6 +407,9 @@ class myBot():
             rd = random.choice(songs)
             os.startfile(os.path.join(dir, rd))
 
+        elif "silent" in query:
+            self.silent = 0
+
 if __name__ == '__main__':
     bot = myBot()
     today = bot.wishme()
@@ -383,13 +420,18 @@ if __name__ == '__main__':
             print("UserSaid: " + str(query))
             if re.search("alexa", query) or re.search("hey google", query):
                 text = "Sir, Please dont speak about alexa or google assistant. Those are useless dumb guys and nothing in front of me!"
+                print(text)
                 myobj = gTTS(text=text + "Kyuki sab ke sab chor hai saale!", lang="hi", slow=False)
                 myobj.save("tmp.mp3")
                 playsound("tmp.mp3")
                 os.remove("tmp.mp3")
+                
             elif today in query:
                 query = query.replace(today, "\b")
                 if 'open' in query or 'search' in query:
                     bot.OPEN(query)
                 bot.runCommand(query)
+
+            elif "hello thursday" in query:
+                self.silent = 1
             

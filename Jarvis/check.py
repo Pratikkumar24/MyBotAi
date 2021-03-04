@@ -1,5 +1,8 @@
-import re
 
-term = 'tuesday search facebook'
-title = re.findall("((?:.* search )(.*))|(.*)", term)[0][1]
-print("-> " + str(title))
+import re
+query = "thursday search ddf"
+title = re.findall("((?:.* search )(.*))|(.*)", query)[0][1]
+if not len(title)>2:
+    print("need to say")
+else:
+    print("-> " + title)
