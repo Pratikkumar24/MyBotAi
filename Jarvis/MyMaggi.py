@@ -1,6 +1,12 @@
 
-from Modules.module import *
-
+try:
+    from Modules.module import *
+except Exception as e:
+    import sys,pyttsx3
+    engine = pyttsx3.init("sapi5")
+    engine.say("Cannot import a module due to slow internet connection. So I need to terminate myself, Sir!")
+    engine.runAndWait()
+    sys.exit()
 class myBot():
     def __init__(self):
         self.engine = pyttsx3.init('sapi5')
@@ -82,8 +88,35 @@ class myBot():
         return query.lower()
 
     def OPEN(self, query):
-        # self.speak("Sir, what do you want me to open or search")
-        if 'search' in query:
+        if "youtube" in query:
+            limit = 1
+            if"open youtube" in query:
+                self.speak("opening youtube")
+                webbrowser.open_new_tab("http://www.youtube.com")
+            else:
+                try:
+                    if re.search("limit", query) or re.search("min",query) or re.search("minimum",query) or re.search("url",query):
+                        numbers = re.findall(r"\d+", query)
+                        if len(numbers)>1:
+                            limit = int(numbers[1])
+                        else:
+                            limit = int(numbers[0])       
+                except Exception:
+                    pass
+
+                title = query.replace('open','XXX').replace('play','XXX').replace('search','XXX')
+                title = re.findall("(?:XXX)(.*youtube)", title)[0]
+                title = title.replace(' in ',' ').replace(' on ',' ').replace('from','\b').replace('show' ,'\b').replace('youtube','\b')
+                urlList = self.youtubeLink(title,limit)
+                print("\n Searching title: " + title + " With "+ str(limit)+" url")
+                text = "opening "+title+" in youtube"
+                m = gTTS(text, lang="hi")
+                m.save("tmp.mp3")
+                playsound("tmp.mp3")
+                os.remove("tmp.mp3")
+                for url in urlList:
+                    webbrowser.open_new_tab(str(url[1]))
+        elif 'search' in query:
             title=""
             while(1):
                 try:
@@ -103,51 +136,47 @@ class myBot():
             webbrowser.open_new_tab(url)
 
         elif 'open' in query:   
-            testquery = query.replace('\b',query)
-            if not len(testquery)>2:
-                while(1):
-                    try:
-                        term = self.takecommand().lower()
-                        title = re.findall("((?:.* open )(.*))|(.*)", term)[0][1]
-                        print("-> " + title)
+            title=""
+            query = " " + query
+            while(1):
+                try:
+                    title = re.findall("((?:.* open )(.*))|(.*)", query)[0][1]
+                    if len(title)<2:
+                        self.speak("Sir, tell me what you want to open")
+                        title = self.takecommand()
+                        if 'none' not in title:
+                            break
+                    else:
                         break
-                    except:
-                        self.speak("Sir! Could you please repeat it")
+                except:
+                    self.speak("Sir! Could you please repeat it")
 
-                if 'notepad' in title:
-                    self.speak("opening notepad")
-                    os.system("cd C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Accessories")
-                    subprocess.Popen("Notepad.exe")
-                elif 'chrome' in title:
-                    self.speak("opening chrome browser with google")
-                    webbrowser.open_new_tab("http://www.google.com")
-                elif 'facebook' in title:
-                    self.speak("opening facebook")
-                    webbrowser.open_new_tab("https://www.facebook.com")
-                elif 'instagram' in title:
-                    self.speak("opening instagram")
-                    webbrowser.open_new_tab("https://www.instagram.com/accounts/edit/?hl=en")
-                elif 'whatsapp'  in title:
-                    self.speak("opening whatsapp")
-                    webbrowser.open_new_tab("https://web.whatsapp.com")   
-            else: 
-                title = re.findall("((?:.* open )(.*))|(.*)", query)[0][1]
-                if 'notepad' in title:
-                    self.speak("opening notepad")
-                    os.system("cd C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Accessories")
-                    subprocess.Popen("Notepad.exe")
-                elif 'chrome' in title:
-                    self.speak("opening chrome browser with google")
-                    webbrowser.open_new_tab("http://www.google.com")
-                elif 'facebook' in title:
-                    self.speak("opening facebook")
-                    webbrowser.open_new_tab("https://www.facebook.com")
-                elif 'instagram' in title:
-                    self.speak("opening instagram")
-                    webbrowser.open_new_tab("https://www.instagram.com/accounts/edit/?hl=en")
-                elif 'whatsapp'  in title:
-                    self.speak("opening whatsapp")
-                    webbrowser.open_new_tab("https://web.whatsapp.com")
+            if 'notepad' in title:
+                self.speak("opening notepad")
+                os.system("cd C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Accessories")
+                subprocess.Popen("Notepad.exe")
+            elif 'chrome' in title:
+                self.speak("opening chrome browser with google")
+                webbrowser.open_new_tab("http://www.google.com")
+            elif 'facebook' in title:
+                self.speak("opening facebook")
+                webbrowser.open_new_tab("https://www.facebook.com")
+            elif 'instagram' in title:
+                self.speak("opening instagram")
+                webbrowser.open_new_tab("https://www.instagram.com/accounts/edit/?hl=en")
+            elif 'whatsapp'  in title:
+                self.speak("opening whatsapp")
+                webbrowser.open_new_tab("https://web.whatsapp.com") 
+            else:
+                print("Error")
+                self.speak("The Current item is not in your list, Wanna make a google search") 
+                ans = self.takecommand()
+                if 'yes' in ans:
+                    url ="https://www.google.com.tr/search?q={}".format(title)
+                    webbrowser.open_new_tab(url)
+                else:
+                    self.speak("as you say sir")
+
 
     def changeWindows(self):
         self.speak("at which number of slide you want to switch,Sir")
@@ -172,6 +201,11 @@ class myBot():
             time.sleep(1)
         pyautogui.keyUp('alt')
     
+    def silentcommand(self):
+        if 'silent' in query:
+            self.speak("Sir, i am awake now. Tell me what to do")
+            self.silent = 1
+
     def runCommand(self,query):
 
         if 'quit' in query or 'exit' in query or 'stop' in query:
@@ -202,12 +236,7 @@ class myBot():
         elif 'change' in query:
             while True:
                 self.changeWindows()
-                self.speak("want to change one more time")
-                ans = self.takecommand()
-                print("->", ans)
-                if 'no' in ans:
-                    break
-      
+                 
         elif 'speed' in query:
             self.speak("Checking the download speed, upload speed and ping of your internet..")
             print("\nLoading......\n")
@@ -295,35 +324,6 @@ class myBot():
                     self.speak("Then what you wanted to know, sir.")
                     return
 
-        elif "youtube" in query:
-            limit = 1
-            if"open youtube" in query:
-                self.speak("opening youtube")
-                webbrowser.open_new_tab("http://www.youtube.com")
-            else:
-                try:
-                    if re.search("limit", query) or re.search("min",query) or re.search("minimum",query) or re.search("url",query):
-                        numbers = re.findall(r"\d+", query)
-                        if len(numbers)>1:
-                            limit = int(numbers[1])
-                        else:
-                            limit = int(numbers[0])       
-                except Exception:
-                    pass
-
-                title = query.replace('open','XXX').replace('play','XXX').replace('search','XXX')
-                title = re.findall("(?:XXX)(.*youtube)", title)[0]
-                title = title.replace(' in ',' ').replace(' on ',' ').replace('from','\b').replace('show' ,'\b').replace('youtube','\b')
-                urlList = self.youtubeLink(title,limit)
-                print("\n Searching title: " + title + " With "+ str(limit)+" url")
-                text = "opening "+title+" in youtube"
-                m = gTTS(text, lang="hi")
-                m.save("tmp.mp3")
-                playsound("tmp.mp3")
-                os.remove("tmp.mp3")
-                for url in urlList:
-                    webbrowser.open_new_tab(str(url[1]))
-
         elif "mean" in query and "what" in query:
             self.speak("Searching the meaning from python dictonary")
             try:
@@ -408,8 +408,9 @@ class myBot():
             os.startfile(os.path.join(dir, rd))
 
         elif "silent" in query:
+            self.speak(("I wont be listening to you untill you say silent again"))
             self.silent = 0
-
+ 
 if __name__ == '__main__':
     bot = myBot()
     today = bot.wishme()
@@ -426,12 +427,15 @@ if __name__ == '__main__':
                 playsound("tmp.mp3")
                 os.remove("tmp.mp3")
                 
-            elif today in query:
-                query = query.replace(today, "\b")
-                if 'open' in query or 'search' in query:
+            elif bot.silent == 1:
+                if today in query:
+                    query = query.replace(today, "\b")
+                elif 'open' in query or 'search' in query or "youtube" in query:
+                    print("the query is : "+ query)
                     bot.OPEN(query)
-                bot.runCommand(query)
+                else:
+                    bot.runCommand(query)
 
-            elif "hello thursday" in query:
-                self.silent = 1
+            elif 'silent' in query:
+                bot.silentcommand()
             
