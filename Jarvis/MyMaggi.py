@@ -420,9 +420,9 @@ if __name__ == '__main__':
         if "none" not in query:
             print("UserSaid: " + str(query))
             if re.search("alexa", query) or re.search("hey google", query):
-                text = "Sir, Please dont speak about alexa or google assistant. Those are useless dumb guys and nothing in front of me!"
+                text = "Sir, Please dont speak about alexa or google assistant. Those are useless in front of me!"
                 print(text)
-                myobj = gTTS(text=text + "Kyuki sab ke sab chor hai saale!", lang="hi", slow=False)
+                myobj = gTTS(text=text + "I am much better than them, Sir", lang="en", slow=False)
                 myobj.save("tmp.mp3")
                 playsound("tmp.mp3")
                 os.remove("tmp.mp3")
